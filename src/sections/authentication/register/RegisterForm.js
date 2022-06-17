@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useFormik, Form, FormikProvider } from 'formik';
 import { useNavigate } from 'react-router-dom';
 // material
@@ -8,6 +8,7 @@ import { LoadingButton } from '@mui/lab';
 // component
 import Iconify from '../../../components/Iconify';
 import {userController} from '../../../controllers/UserController';
+import { UserContext } from 'src/contexts/UserContext';
 
 // ----------------------------------------------------------------------
 
@@ -15,6 +16,7 @@ export default function RegisterForm() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [state,setState]=useState({errLabel:""})
+  const userContext = useContext(UserContext);
 
   const RegisterSchema = Yup.object().shape({
     firstName: Yup.string()
@@ -50,8 +52,10 @@ export default function RegisterForm() {
       userController.create(user).then(res=>{
         if(res==409){
           setState(prev=>({...prev,errLabel:"Your username is already exists!"}))
+          userContext.setErr("Your username is already exists!");
         }else{
           navigate('/login', { replace: true });
+          userContext.setMess("Create Account Successfully")
         }
       })
       // 

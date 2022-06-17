@@ -8,6 +8,8 @@ import AuthLayout from '../layouts/AuthLayout';
 import Page from '../components/Page';
 import { LoginForm } from '../sections/authentication/login';
 import AuthSocial from '../sections/authentication/AuthSocial';
+import ForgotPassForm from 'src/sections/authentication/login/ForgotPassForm';
+import { useState } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -39,6 +41,9 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Login() {
+  const [isForgot, setIsForgot] = useState(false);
+
+  console.log(isForgot);
   return (
     <RootStyle title="Login">
       <AuthLayout>
@@ -57,15 +62,33 @@ export default function Login() {
 
       <Container maxWidth="sm">
         <ContentStyle>
-          <Stack sx={{ mb: 5 }}>
-            <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
-            </Typography>
-            <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
-          </Stack>
-          <AuthSocial />
+          {isForgot == false ? (
+            <>
+              <Stack sx={{ mb: 5 }}>
+                <Typography variant="h4" gutterBottom></Typography>
+                <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
+              </Stack>
+              <AuthSocial />
+            </>
+          ) : (
+            <>
+              <Stack sx={{ mb: 5 }} justifyContent={'space-between'} flexDirection={"row"}>
+                {/* <Typography variant="h4" gutterBottom></Typography> */}
+                <Typography variant="h4" sx={{ color: 'text.secondary' }}>
+                  Forgot Password
+                </Typography>
+                <Link component={RouterLink} variant="subtitle2" to="#" underline="hover" onClick={()=>setIsForgot(false)} >
+                  Back to Login
+                </Link>
 
-          <LoginForm />
+              </Stack>
+            </>
+          )}
+          {isForgot == false ? (
+            <LoginForm setIsForgot={setIsForgot} />
+          ) : (
+            <ForgotPassForm setIsForgot={setIsForgot} />
+          )}
 
           <Typography
             variant="body2"

@@ -27,25 +27,30 @@ const sidebarConfig = [
     icon: getIcon('eva:shopping-bag-fill')
   },
   {
-    title: 'blog',
-    path: '/dashboard/blog',
-    icon: getIcon('eva:file-text-fill')
+    title: 'Orders',
+    path: '/dashboard/orders',
+    icon: getIcon('icon-park-outline:transaction-order')
   },
   {
-    title: 'login',
-    path: '/login',
-    icon: getIcon('eva:lock-fill')
+    title: 'Cate Lab 6',
+    path: '/dashboard/cate-lab6',
+    icon: getIcon('carbon:category-new-each')
   },
   {
-    title: 'register',
-    path: '/register',
-    icon: getIcon('eva:person-add-fill')
+    title: 'Post Lab 6',
+    path: '/dashboard/posts-lab6',
+    icon: getIcon('map:post-box')
   },
   {
     title: 'Not found',
     path: '/404',
     icon: getIcon('eva:alert-triangle-fill')
-  }
+  },
+  {
+    title: 'blog',
+    path: '/dashboard/blog',
+    icon: getIcon('eva:file-text-fill')
+  },
 ];
 
 export default sidebarConfig;

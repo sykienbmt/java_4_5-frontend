@@ -1,0 +1,27 @@
+.menu-container-profile{
+    text-align: center;
+    padding: 20px 20px 0 20px ;
+}
+
+.avatar-profile{
+    width: 100%;
+}
+
+.menu-container-profile ul{
+    margin-top: 20px;
+}
+
+.name-user-bold{
+    font-size: 50px;
+}
+
+.menu-container-profile ul li{
+    padding: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.avatar-profile img{
+    object-fit:cover;
+    margin: auto;
+}

@@ -40,19 +40,22 @@ export default function DashboardLayout() {
 
   useEffect(()=>{
     if(state.userInfo!==""){
-      if(state.userInfo.role!=="admin"){
-        navigate('/login')
-      }
+      // if(state.userInfo?.role!=="admin"){
+      //   navigate('/login')
+      // }
     }
   },[state.userInfo])
 
   return (
     <RootStyle>
+      {/* {state.userInfo?.role!=="admin"? <> */}
       <DashboardNavbar onOpenSidebar={() => setOpen(true)} />
       <DashboardSidebar isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
       <MainStyle>
         <Outlet />
       </MainStyle>
+      {/* </>:<div></div> */}
+    {/* } */}
     </RootStyle>
   );
 }

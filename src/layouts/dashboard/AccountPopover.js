@@ -39,6 +39,7 @@ export default function AccountPopover() {
   const navigate = useNavigate();
 
   const {state} = useContext(UserContext)
+  const userContext = useContext(UserContext)
 
   const handleOpen = () => {
     setOpen(true);
@@ -46,11 +47,6 @@ export default function AccountPopover() {
   const handleClose = () => {
     setOpen(false);
   };
-
-  const logout=()=>{
-    setCookie("id","",0)
-    navigate('/login', { replace: true });
-  }
 
   return (
     <>
@@ -116,7 +112,7 @@ export default function AccountPopover() {
         ))}
 
         <Box sx={{ p: 2, pt: 1.5 }}>
-          <Button fullWidth color="inherit" variant="outlined" onClick={logout}>
+          <Button fullWidth color="inherit" variant="outlined" onClick={()=>userContext.logout()}>
             Logout
           </Button>
         </Box>

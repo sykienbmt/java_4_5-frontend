@@ -64,8 +64,6 @@ export default function Footer() {
                     <input
                       type="text"
                       defaultValue="Enter your email"
-                      onFocus="this.value = '';"
-                      onBlur="if (this.value == '') {this.value = 'Enter your email';}"
                     />
                     <input type="submit" defaultValue="Go" />
                   </form>

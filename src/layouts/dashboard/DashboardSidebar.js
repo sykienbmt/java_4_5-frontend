@@ -47,7 +47,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isDesktop = useResponsive('up', 'lg');
-  const {state} = useContext(UserContext)
+  const userContext = useContext(UserContext)
 
   useEffect(() => {
     if (isOpenSidebar) {
@@ -56,10 +56,10 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  const logout=()=>{
-    setCookie("id","",0)
-    navigate('/login');
-  }
+  // const logout=()=>{
+  //   setCookie("id","",0)
+  //   navigate('/login');
+  // }
   const renderContent = (
     <Scrollbar
       sx={{
@@ -77,10 +77,10 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
             <Avatar src={account.photoURL} alt="photoURL" />
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {state.userInfo!==""?state.userInfo.username:''}
+                {userContext.state.userInfo!==""?userContext.state.userInfo.username:''}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {state.userInfo!==""?state.userInfo.role:''}
+                {userContext.state.userInfo!==""?userContext.state.userInfo.role:''}
               </Typography>
             </Box>
           </AccountStyle>
@@ -109,7 +109,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
           <Button
             target="_blank"
             variant="contained"
-            onClick={logout}
+            onClick={()=>userContext.logout()}
           >
             Logout
           </Button>

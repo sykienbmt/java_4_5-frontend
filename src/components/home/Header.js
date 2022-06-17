@@ -3,17 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from 'src/contexts/CartContext';
 import { UserContext } from 'src/contexts/UserContext';
 import { setCookie } from 'src/helper/Cookies';
-import { FaClipboardList } from "react-icons/fa";
+// import '../../css/bootstrap.css';
+import '../../css/style.css';
 
 export default function Header() {
   const cartContext = useContext(CartContext);
+  const userContext = useContext(UserContext)
   const {state} = useContext(UserContext)
-  const navigate = useNavigate();
-
-  const logout=()=>{
-    setCookie("id","",0)
-    navigate('/login', { replace: true });
-  }
+  const navigate = useNavigate()
   
 
   return (
@@ -47,6 +44,9 @@ export default function Header() {
                   </li> */}
                   <li>
                     <Link to="/orders">Your Orders</Link>
+                  </li>
+                  <li>
+                    <Link to="/profile/99">Your Profile</Link>
                   </li>
                   <div className="clear" />
                 </ul>
@@ -126,7 +126,7 @@ export default function Header() {
                         <Link to="/cart">Go To Cart</Link>
                       </div>
                       <div className="check_button">
-                        <a onClick={logout}>Logout</a>
+                        <a onClick={()=>userContext.logout()}>Logout</a>
                       </div>
                       <div className="clear" />
                     </div>

@@ -16,19 +16,19 @@ import { LoadingButton } from '@mui/lab';
 // component
 import Iconify from '../../../components/Iconify';
 import { userController } from 'src/controllers/UserController';
-import { UserContext } from 'src/contexts/UserContext';
+import { parseJwt, UserContext } from 'src/contexts/UserContext';
 import { setCookie } from 'src/helper/Cookies';
 
 // ----------------------------------------------------------------------
 
-export default function LoginForm() {
+export default function LoginForm({ setIsForgot }) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const userContext = useContext(UserContext)
-  const [state,setState] = useState({
-    username:"",
-    password:"",
-    error:""
+  const userContext = useContext(UserContext);
+  const [state, setState] = useState({
+    username: '',
+    password: '',
+    error: ''
   });
 
   const LoginSchema = Yup.object().shape({
@@ -38,24 +38,26 @@ export default function LoginForm() {
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
       remember: true
     },
     onSubmit: () => {
-      userController.login(state.username,state.password).then(res=>{
-        if(res==403){
-          setState(prev=>({...prev,error:"Username or password is incorrect"}))
-        }else{
-          userContext.setUser(res)
-          if(res.role==="admin"){
-            navigate('/dashboard/app')
-          }else{
-            navigate('/home')
-          }
-          setCookie("id",res.id,1)
+      userController.login(state.username, state.password).then((res) => {
+        if (res == 403) {
+          setState((prev) => ({ ...prev, error: 'Username or password is incorrect' }));
+        } else {
+          const value = parseJwt(localStorage.getItem('accessToken'));
+          userController.getMe(value.sub).then((res) => {
+            userContext.setUser(res);
+            if (res.role === 'admin') {
+              navigate('/dashboard/app');
+            } else {
+              navigate('/home');
+            }
+          });
         }
-      })
+      });
     }
   });
 
@@ -78,7 +80,7 @@ export default function LoginForm() {
             error={Boolean(touched.email && errors.email)}
             helperText={touched.email && errors.email}
             value={state.username}
-            onChange = {e=>setState(prev=>({...prev,username:e.target.value}))}
+            onChange={(e) => setState((prev) => ({ ...prev, username: e.target.value }))}
           />
 
           <TextField
@@ -88,7 +90,7 @@ export default function LoginForm() {
             label="Password"
             {...getFieldProps('password')}
             value={state.password}
-            onChange = {e=>setState(prev=>({...prev,password:e.target.value}))}
+            onChange={(e) => setState((prev) => ({ ...prev, password: e.target.value }))}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -103,25 +105,26 @@ export default function LoginForm() {
           />
         </Stack>
 
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{  }}>
           <FormControlLabel
             control={<Checkbox {...getFieldProps('remember')} checked={values.remember} />}
             label="Remember me"
           />
 
-          <Link component={RouterLink} variant="subtitle2" to="#" underline="hover">
+          <Link
+            component={RouterLink}
+            variant="subtitle2"
+            to="#"
+            underline="hover"
+            onClick={() => setIsForgot(true)}
+          >
             Forgot password?
           </Link>
         </Stack>
-        
-        <p>{state.error}</p>
 
-        <LoadingButton
-          fullWidth
-          size="large"
-          type="submit"
-          variant="contained"
-        >
+        <p style={{textAlign:"center",color:"red",fontWeight:"700", marginBottom:"10px"}}>{state.error}</p>
+
+        <LoadingButton fullWidth size="large" type="submit" variant="contained">
           Login
         </LoadingButton>
       </Form>

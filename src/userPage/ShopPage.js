@@ -407,8 +407,6 @@ export default function ShopPage() {
                     <input
                       type="text"
                       defaultValue="Enter your email"
-                      onfocus="this.value = '';"
-                      onblur="if (this.value == '') {this.value = 'Enter your email';}"
                     />
                     <input type="submit" defaultValue="Go" />
                   </form>

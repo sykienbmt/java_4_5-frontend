@@ -51,10 +51,10 @@ export default function CheckOutForm() {
 
   const formik = useFormik({
     initialValues: {
-      email: '',
-      full_name: '',
-      phone_number: '',
-      address: ''
+      email: 'kiennspk01738@fpt.edu.vn',
+      full_name: 'Kien Nguyen',
+      phone_number: '0966666666',
+      address: 'Bmttttt'
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {

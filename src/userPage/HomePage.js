@@ -9,11 +9,6 @@ export default function HomePage() {
   const navigate = useNavigate();
   const userContext = useContext(UserContext)
 
-  const logout=()=>{
-    setCookie("id","",0)
-    navigate('/login', { replace: true });
-  }
-
   return (
     <div>
       <Header />
@@ -256,8 +251,6 @@ export default function HomePage() {
                     <input
                       type="text"
                       defaultValue="Enter your email"
-                      onFocus="this.value = '';"
-                      onBlur="if (this.value == '') {this.value = 'Enter your email';}"
                     />
                     <input type="submit" defaultValue="Go" />
                   </form>

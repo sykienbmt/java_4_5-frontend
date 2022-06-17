@@ -1,25 +1,45 @@
 import axios from "axios";
 import { backendUrl } from "src/constraint";
+import { authAxios } from "./Auth";
 
 class OrderController{
 
     async create(orders){
-        return axios.post(backendUrl+'orders',orders).then(res=>{
+        return authAxios.post(backendUrl+'orders',orders).then(res=>{
             return res.data
         })
     }
 
     async saveItem(item){
-        return axios.post(backendUrl+'orders/item',item).then(res=>{
+        return authAxios.post(backendUrl+'orders/item',item).then(res=>{
             return res.data
         })
     }
 
     async getInfoOrder(id){
-        return axios.get(backendUrl+`orders/get/${id}`).then(res=>{
+        return authAxios.get(backendUrl+`orders/get/${id}`).then(res=>{
             return res.data
         })
     }
+
+    async getAllOrders(){
+        return authAxios.get(backendUrl+`orders`).then(res=>{
+            return res.data
+        })
+    }
+
+    async getAllOrdersByIdOrder(id){
+        return authAxios.get(backendUrl+`orders-product/${id}`).then(res=>{
+            return res.data
+        })
+    }
+
+    async updateOrderStatus(orderStatus){
+        return authAxios.put(backendUrl+`orders/status`,orderStatus).then(res=>{
+            return res.data
+        })
+    }
+
 
 
     async getOrders(id){

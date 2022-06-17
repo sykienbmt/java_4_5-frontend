@@ -9,6 +9,7 @@ import {
   Card,
   Table,
   Stack,
+  Avatar,
   Button,
   Checkbox,
   TableRow,
@@ -36,12 +37,13 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 import USERLIST from '../_mocks_/user';
 import { categoryController } from 'src/controllers/CategoryController';
 import SearchIcon from '@mui/icons-material/Search';
+import { categoryLab6Controller } from 'src/controllers/CategoryLab6Controller ';
+import UserMoreMenu2 from 'src/sections/@dashboard/user/UserMoreMenu2';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'id', label: 'Id', alignRight: false },
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'desctiption', label: 'Desctiption', alignRight: false },
   { id: '' }
 ];
 
@@ -76,7 +78,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function Category() {
+export default function CategoryLab6() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState('asc');
   const [selected, setSelected] = useState([]);
@@ -93,7 +95,7 @@ export default function Category() {
 
 
   useEffect(()=>{
-    categoryController.list().then(res=>{
+    categoryLab6Controller.list().then(res=>{
       setState(prev=>({...prev,listCategory:res}))
     })
   },[])
@@ -151,13 +153,11 @@ export default function Category() {
 
   const handleSearch=()=>{
     if(search==""){
-      categoryController.list().then(res=>{
+      categoryLab6Controller.list().then(res=>{
         setState(prev=>({...prev,listCategory:res}))
       })
     }else{
-      categoryController.searchByName(search).then(res=>{
-        setState(prev=>({...prev,listCategory:res}))
-      })
+      setState(prev=>({...prev,listCategory:state.listCategory.filter(item=>item.nameCategory.includes(search))}))
     }
   }
 
@@ -172,7 +172,7 @@ export default function Category() {
   const handleClose = () => {
     setOpen(false);
     setState(prev=>({...prev,errLabel:"",category:{
-      id:"",
+      categoryId:"",
       nameCategory:"",
       description:""
     }}))
@@ -189,11 +189,10 @@ export default function Category() {
       return;
     }else{
       let category={
+        categoryId:0,
         nameCategory:state.category.nameCategory,
-        description:state.category.description,
-        deleteAt:null
       }
-      categoryController.create(category).then(res=>{
+      categoryLab6Controller.create(category).then(res=>{
         setState(prev=>({...prev,listCategory:res,category:{...prev.category,nameCategory:"",description:"",errLabel:""}}))
       })
       toast.success("Create Done", {  position: 'bottom-right', autoClose: 3000 })
@@ -205,9 +204,9 @@ export default function Category() {
     if(state.category.nameCategory==="" || state.category.description===""){
       setState(prev=>({...prev,errLabel:"Pls Refill all fields"}))
     }else{
-      categoryController.edit(state.category).then(res=>{
+      categoryLab6Controller.edit(state.category).then(res=>{
         setState(prev=>({...prev,errLabel:"",listCategory:res,category:{
-          id:"",
+          categoryId:"",
           nameCategory:"",
           description:""
         }}))
@@ -223,7 +222,7 @@ export default function Category() {
   }
 
   const deleteCategory=(id)=>{
-    categoryController.delete(id).then(res=>{
+    categoryLab6Controller.delete(id).then(res=>{
       setState(prev=>({...prev,listCategory:res}))
     })
     toast.success("Delete Done", {  position: 'bottom-right', autoClose: 3000 })
@@ -284,13 +283,13 @@ export default function Category() {
                   {state.listCategory.length>0 && state.listCategory
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { id, nameCategory ,description} = row;
+                      const { categoryId, nameCategory } = row;
                       const isItemSelected = selected.indexOf(nameCategory) !== -1;
 
                       return (
                         <TableRow
                           hover
-                          key={id}
+                          key={categoryId}
                           tabIndex={-1}
                           role="checkbox"
                           selected={isItemSelected}
@@ -306,15 +305,14 @@ export default function Category() {
                           <TableCell component="th" scope="row" padding="none" sx={{textAlign:'left',paddingLeft:'15px'}}>
                               {/* <Avatar alt={nameCategory} src={avatarUrl} /> */}
                               <Typography variant="subtitle2" noWrap>
-                                {id}
+                                {categoryId}
                               </Typography>
                           </TableCell>
 
                           <TableCell align="left">{nameCategory}</TableCell>
-                          <TableCell align="left">{description}</TableCell>
 
                           <TableCell align="right">
-                            <UserMoreMenu category={row} setEdit={setEdit} deleteCategory={deleteCategory}/>
+                            <UserMoreMenu2 category={row} setEdit={setEdit} deleteCategory={deleteCategory}/>
                           </TableCell>
                         </TableRow>
                       );
@@ -357,7 +355,7 @@ export default function Category() {
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            {state.category.id==""?'New Category':"Edit Category"}
+            {state.category.categoryId==""?'New Category':"Edit Category"}
           </Typography>
           <TextField
             fullWidth
@@ -386,7 +384,7 @@ export default function Category() {
               startIcon={<Iconify icon="eva:plus-fill" />}
               onClick={state.category.id==""?addEditCategory:editCategory}
             >
-              {state.category.id==""?'Add':"Edit"}
+              {state.category.categoryId==""?'Add':"Edit"}
             </Button>
           </Box>
         </Box>

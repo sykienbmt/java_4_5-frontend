@@ -115,10 +115,21 @@ export const CartContextProvider =(props)=>{
 
     const checkout=(user)=>{
         user.id=uuidv4();
+        console.log(userContext.state.userInfo.id);
         let total=0;
+        let total2 = 0;
+        user.status="pending"
+
+        state.itemCarts.map(item=>{
+            total2+=item.quantity * item.price
+        })
+
+        user.total = total2
+        user.datetime=Date.now();
         orderController.create(user).then(res=>{
             state.itemCarts.map(item=>{
                 const itemCarts={
+                    id:0,
                     id_order:user.id,
                     id_product:item.id,
                     name:item.name,

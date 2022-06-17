@@ -12,11 +12,17 @@ import User from './pages/User';
 import NotFound from './pages/Page404';
 import HomePage from './userPage/HomePage';
 import Category from './pages/Category';
-import ShopPage from './userPage/ShopPage';
 import ProductPage from './userPage/ProductPage';
 import DetailPage from './userPage/DetailPage';
 import Cart from './pages/cart/Cart';
 import OrderPage from './pages/order/OrderPage';
+import Profile from './userPage/Profile';
+import CategoryLab6 from './pages/CategoryLab6';
+import PostLab6 from './pages/PostLab6';
+import UserManager from './pages/UserManager';
+import UsersManager from './pages/UsersManager';
+import PostDetailPage from './pages/PostDetailPage';
+import OrderManager from './pages/OrderManager';
 
 // ----------------------------------------------------------------------
 
@@ -27,9 +33,14 @@ export default function Router() {
       element: <DashboardLayout />,
       children: [
         { path: 'app', element: <DashboardApp /> },
-        { path: 'user', element: <User /> },
+        { path: 'user', element: <UsersManager /> },
         { path: 'category', element: <Category /> },
         { path: 'products', element: <Products /> },
+        { path: 'orders', element: <OrderManager /> },
+        { path: 'cate-lab6', element: <CategoryLab6 /> },
+        { path: 'posts-lab6', element: <PostLab6 /> },
+        { path: 'posts-lab6/:id', element: <PostDetailPage /> },
+        // { path: 'posts-lab6/:id', element: <PostPageDetail /> },
         { path: 'blog', element: <Blog /> }
       ]
     },
@@ -43,6 +54,7 @@ export default function Router() {
         { path: 'home', element: <HomePage /> },
         { path: 'shop', element: <ProductPage /> },
         { path: 'shop/:id', element: <DetailPage /> },
+        { path: 'profile/:id', element: <Profile /> },
         { path: 'register', element: <Register /> },
         { path: 'orders', element: <OrderPage /> },
         { path: 'cart', element: <Cart /> },

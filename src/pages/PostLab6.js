@@ -11,10 +11,13 @@ import {
   DialogContentText,
   DialogTitle,
   FormControl,
+  IconButton,
+  InputBase,
   InputLabel,
   MenuItem,
   Modal,
   Pagination,
+  Paper,
   Select,
   Stack,
   TextField,
@@ -29,31 +32,31 @@ import {
   ProductFilterSidebar
 } from '../sections/@dashboard/products';
 //
-import PRODUCTS from '../_mocks_/products';
-import { productController } from 'src/controllers/ProductController';
 import Iconify from 'src/components/Iconify';
-import { categoryController } from 'src/controllers/CategoryController';
 import { UserContext } from 'src/contexts/UserContext';
+import { categoryLab6Controller } from 'src/controllers/CategoryLab6Controller ';
+import { postController } from 'src/controllers/PostController';
+import PostList from 'src/sections/@dashboard/products/PostList';
+import SearchIcon from '@mui/icons-material/Search';
 
 // ----------------------------------------------------------------------
 
-export default function EcommerceShop() {
+export default function PostLab6() {
   const [openFilter, setOpenFilter] = useState(false);
+  const [search,setSearch]=useState("")
   const [state, setState] = useState({
-    products: [],
-    categories: [],
+    posts: [],
+    categories6: [],
     idDelete: '',
     err: '',
-    errImage:"",
-    errPrice:"",
-    errName:"",
-    errCategory:"",
-    product: {
-      id: '',
+    errImage: '',
+    errDesc: '',
+    errName: '',
+    post: {
+      postId: '',
       name: '',
-      category: 1,
+      categoryId: 1,
       description: '',
-      price: 0,
       image: ''
     }
   });
@@ -72,12 +75,23 @@ export default function EcommerceShop() {
   });
 
   useEffect(() => {
-    productController.list().then((res) => {
-      categoryController.list().then((resc) => {
-        setState((prev) => ({ ...prev, products: res, categories: resc }));
+    postController.list().then((res) => {
+      categoryLab6Controller.list().then((resc) => {
+        setState((prev) => ({ ...prev, posts: res, categories6: resc }));
       });
     });
   }, []);
+
+  const handleSearch=()=>{
+    if(search==""){
+      postController.list().then(res=>{
+        setState(prev=>({...prev,posts: res}))
+      })
+    }else{
+      postController.list();
+      setState(prev=>({...prev,posts: state.posts.filter(item=>item.name.includes(search))}))
+    }
+  }
 
   const { resetForm, handleSubmit } = formik;
 
@@ -98,19 +112,23 @@ export default function EcommerceShop() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    setState(prev=>({...prev,errCategory:"",errImage:"",errName:"",errPrice:"",product: {
-      id: '',
-      name: '',
-      category: 1,
-      description: '',
-      price: 0,
-      image: ''
-    }}))
-    
+    setState((prev) => ({
+      ...prev,
+      errImage: '',
+      errDesc: '',
+      errName: '',
+      post: {
+        postId: '',
+        name: '',
+        categoryId: 1,
+        description: '',
+        image: ''
+      }
+    }));
   };
 
   const handleChange = (event) => {
-    setState((prev) => ({ ...prev, product: { ...prev.product, category: event.target.value } }));
+    setState((prev) => ({ ...prev, post: { ...prev.post, categoryId: event.target.value } }));
   };
 
   const { setMess } = useContext(UserContext);
@@ -118,37 +136,39 @@ export default function EcommerceShop() {
   const addProduct = (e) => {
     let isValid = false;
     e.preventDefault();
-    if(state.product.image == ''){
-      setState(prev=>({...prev,errImage:"Image is Required"}))
-      isValid=true
+    if (state.post.image == '') {
+      setState((prev) => ({ ...prev, errImage: 'Image is Required' }));
+      isValid = true;
     }
-    if(state.product.name == ''){
-      setState(prev=>({...prev,errName:"Name is Required"}))
-      isValid=true
+    if (state.post.name == '') {
+      setState((prev) => ({ ...prev, errName: 'Name is Required' }));
+      isValid = true;
     }
-    if(state.product.price <0 || state.product.price==0){
-      setState(prev=>({...prev,errPrice:"Price must be >0"}))
-      isValid=true
+    if (state.post.description == '') {
+      setState((prev) => ({ ...prev, errDesc: 'Description is Required' }));
+      isValid = true;
     }
 
-    if(!isValid){
-      let product = { ...state.product };
-      product.id = 0;
-      product.deleteAt = null;
-      productController.add(product).then((res) => {
-        setState((prev) => ({ ...prev, products: res, err: '' }));
+    if (!isValid) {
+      let post = { ...state.post };
+      post.postId = 0;
+      post.deleteAt = null;
+      postController.create(post).then((res) => {
+        postController.list().then((res) => {
+          setState((prev) => ({ ...prev, posts: res}));
+        })
       });
-      setState(prev=>({...prev,errCategory:"",errImage:"",errName:"",errPrice:""}))
+      handleClose()
       setMess('Add Done');
     }
-
   };
 
-  const editProduct = (product) => {
-    let index = state.categories.findIndex((i) => i.nameCategory == product.category);
-    let productEdit = product;
-    productEdit.category = state.categories[index].id;
-    setState((prev) => ({ ...prev, product: productEdit }));
+  const editProduct = (post1) => {
+    console.log(123);
+    // let index = state.categories6.findIndex((i) => i.id == post.categoryId);
+    // let productEdit = post;
+    // productEdit.categoryId = state.categories6[index].categoryId;
+    setState((prev) => ({ ...prev, post: post1 }));
     handleOpen();
   };
 
@@ -159,10 +179,12 @@ export default function EcommerceShop() {
 
   const edit = (e) => {
     e.preventDefault();
-    let productEdit = state.product;
+    let productEdit = state.post;
     productEdit.deleteAt = null;
-    productController.edit(productEdit).then((res) => {
-      setState((prev) => ({ ...prev, products: res }));
+    postController.edit(productEdit).then((res) => {
+      postController.list().then((res) => {
+        setState((prev) => ({ ...prev, posts: res}));
+      })
     });
     handleClose();
     setMess('Edit Done');
@@ -180,20 +202,34 @@ export default function EcommerceShop() {
 
   const onClickDelete1 = () => {
     handleClose1();
-    productController.delete(state.idDelete).then((res) => {
-      setState((prev) => ({ ...prev, products: res }));
+    postController.delete(state.idDelete).then((res) => {
+      postController.list().then((res) => {
+        setState((prev) => ({ ...prev, posts: res}));
+      })
     });
     setMess('Delete Done');
   };
 
-  const onSubmit1=(e)=>{
+  const onSubmit1 = (e) => {
     e.preventDefault();
     console.log(123);
-  }
+  };
 
   return (
     <Page title="Dashboard: Products | Minimal-UI">
       <Container>
+      <Paper
+            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 300,border:"1px solid #ddd" }}
+          >
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="Search post"
+              onChange={e=>setSearch(e.target.value)}
+            />
+            <IconButton  sx={{ p: '10px' }} aria-label="search">
+              <SearchIcon onClick={()=>handleSearch()}/>
+            </IconButton>
+          </Paper>
         <Stack
           direction="row"
           flexWrap="wrap-reverse"
@@ -218,19 +254,19 @@ export default function EcommerceShop() {
             startIcon={<Iconify icon="eva:plus-fill" />}
             onClick={handleOpen}
           >
-            New Product
+            New Post
           </Button>
         </Stack>
 
-        <ProductList
-          products={state.products}
+        <PostList
+          posts={state.posts}
           editProduct={editProduct}
           deleteProduct={deleteProduct}
         />
         <ProductCartWidget />
         <Box spacing={2} sx={{ width: '100%', textAlight: 'center', mt: '20px' }}>
           <Pagination
-            count={10}
+            count={1}
             variant="outlined"
             shape="rounded"
             sx={{ display: 'flex', justifyContent: 'center' }}
@@ -244,57 +280,42 @@ export default function EcommerceShop() {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <form onSubmit={state.product.id == '' ? (e) => addProduct(e) : (e) => edit(e)}>
+        <form onSubmit={state.post.postId == '' ? (e) => addProduct(e) : (e) => edit(e)}>
           <Box sx={style}>
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              {state.product.id == '' ? 'New Product' : 'Edit Product'}
+              {state.post.postId == '' ? 'New Post' : 'Edit Post'}
             </Typography>
 
             <TextField
               fullWidth
               type="text"
-              label="Product name"
+              label="Post name"
               // required
-              defaultValue={state.product.name}
+              defaultValue={state.post.name}
               sx={{ marginTop: '10px' }}
               onChange={(e) =>
                 setState((prev) => ({
                   ...prev,
-                  product: { ...prev.product, name: e.target.value }
+                  post: { ...prev.post, name: e.target.value }
                 }))
               }
             />
-            <Typography sx={{color:"red",fontSize:"14px",textAlign:"center"}}>{state.errName}</Typography>
-
-            <TextField
-              fullWidth
-              type="text"
-              label="Price"
-              // required
-              defaultValue={state.product.price}
-              sx={{ marginTop: '10px' }}
-              onChange={(e) =>
-                setState((prev) => ({
-                  ...prev,
-                  product: { ...prev.product, price: e.target.value }
-                }))
-              }
-            />
-            <Typography sx={{color:"red",fontSize:"14px",textAlign:"center"}}>{state.errPrice}</Typography>
+            <Typography sx={{ color: 'red', fontSize: '14px', textAlign: 'center' }}>
+              {state.errName}
+            </Typography>
 
             <FormControl fullWidth sx={{ mt: '10px', mb: '4px' }}>
               <InputLabel id="demo-simple-select-label">Category</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                value={state.product.category}
+                value={state.post.categoryId}
                 label="Category"
                 onChange={handleChange}
               >
-                {state.categories.length > 0 &&
-                  state.categories.map((item) => {
-                    return (
-                      <MenuItem key={item.id} value={item.id}>
+                {state.categories6.length > 0 &&
+                  state.categories6.map((item) => {
+                    return (<MenuItem key={item.categoryId} value={item.categoryId}>
                         {item.nameCategory}
                       </MenuItem>
                     );
@@ -307,16 +328,18 @@ export default function EcommerceShop() {
               type="text"
               label="Image"
               // required
-              defaultValue={state.product.image}
+              defaultValue={state.post.image}
               sx={{ marginTop: '10px' }}
               onChange={(e) =>
                 setState((prev) => ({
                   ...prev,
-                  product: { ...prev.product, image: e.target.value }
+                  post: { ...prev.post, image: e.target.value }
                 }))
               }
             />
-            <Typography sx={{color:"red",fontSize:"14px",textAlign:"center"}}>{state.errImage}</Typography>
+            <Typography sx={{ color: 'red', fontSize: '14px', textAlign: 'center' }}>
+              {state.errImage}
+            </Typography>
             <TextField
               fullWidth
               type="text"
@@ -325,15 +348,17 @@ export default function EcommerceShop() {
               // required
               sx={{ marginTop: '10px', marginBottom: '15px' }}
               rows={4}
-              defaultValue={state.product.description}
+              defaultValue={state.post.description}
               onChange={(e) =>
                 setState((prev) => ({
                   ...prev,
-                  product: { ...prev.product, description: e.target.value }
+                  post: { ...prev.post, description: e.target.value }
                 }))
               }
             />
-            <p style={{ textAlign: 'center', color: 'red', margin: '10px 0' }}>{state.err}</p>
+            <Typography sx={{ color: 'red', fontSize: '14px', textAlign: 'center' }}>
+              {state.errDesc}
+            </Typography>
 
             <Button
               variant="contained"
@@ -341,7 +366,7 @@ export default function EcommerceShop() {
               value="Submit"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >
-              {state.product.id == '' ? 'Add' : 'Edit'}
+              {state.post.postId == '' ? 'Add' : 'Edit'}
             </Button>
           </Box>
         </form>
@@ -355,7 +380,7 @@ export default function EcommerceShop() {
         <DialogTitle id="alert-dialog-title">{'Alert'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure to delete this Product ?
+            Are you sure to delete this Post ?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
