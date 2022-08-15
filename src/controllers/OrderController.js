@@ -37,7 +37,11 @@ class OrderController{
     async updateOrderStatus(orderStatus){
         return authAxios.put(backendUrl+`orders/status`,orderStatus).then(res=>{
             return res.data
-        })
+        }).catch(function (error) {
+            if (error.response) {
+              return error.response.status;
+            }
+          });
     }
 
 
@@ -85,6 +89,12 @@ class OrderController{
     async sendMail(mailSend){
         console.log(mailSend);
         return axios.post(backendUrl+`orders/send`,mailSend).then(res=>{
+            return res.data
+        })
+    }
+
+    async getStatisticData(){
+        return axios.get(backendUrl+`orders/getStatistic`).then(res=>{
             return res.data
         })
     }

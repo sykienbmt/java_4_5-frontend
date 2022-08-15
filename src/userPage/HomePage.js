@@ -1,60 +1,105 @@
-import React, { useContext } from 'react';
+import { Container, IconButton, InputBase, Paper, Stack } from '@mui/material';
+import { useFormik } from 'formik';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from 'src/components/home/Header';
 import { UserContext } from 'src/contexts/UserContext';
+import { categoryLab6Controller } from 'src/controllers/CategoryLab6Controller ';
+import { productController } from 'src/controllers/ProductController';
 import { setCookie } from 'src/helper/Cookies';
+import { ProductCartWidget, ProductFilterSidebar, ProductSort } from 'src/sections/@dashboard/products';
+import SearchIcon from '@mui/icons-material/Search';
+import ReactPaginate from 'react-paginate';
+import ProductListUser from 'src/components/product/ProductListUser';
 
 export default function HomePage() {
 
   const navigate = useNavigate();
   const userContext = useContext(UserContext)
+  const [openFilter, setOpenFilter] = useState(false);
+  const [state,setState] = useState({products:[],categories:[],
+    product:{
+      id:"",
+      name:"",
+      category:1,
+      description:"",
+      price:0,
+      image:""
+    },
+    pagination:{
+      page:1,
+      perPage:8,
+      category:"",
+      sort:"",
+      by:"",
+      search:""
+    },
+    totalPage:1,
+    search:""
+  })
+
+  const formik = useFormik({
+    initialValues: {
+      gender: '',
+      category: '',
+      colors: '',
+      priceRange: '',
+      rating: ''
+    },
+    onSubmit: () => {
+      setOpenFilter(false);
+    }
+  });
+
+  useEffect(()=>{
+    categoryLab6Controller.list().then(resc=>{
+      setState(prev=>({...prev,categories:resc}))
+    })
+  },[])
+
+  useEffect(()=>{
+    productController.listWithPagination(state.pagination).then(res=>{
+      setState(prev=>({...prev,products:res.listProduct,totalPage:res.totalPage}))
+    })
+  },[state.pagination])
+
+  const { resetForm, handleSubmit } = formik;
+
+  const handleOpenFilter = () => {
+    setOpenFilter(true);
+  };
+
+  const handleCloseFilter = () => {
+    setOpenFilter(false);
+  };
+
+  const handleResetFilter = () => {
+    handleSubmit();
+    resetForm();
+  };
+
+  const changePage = ({ selected }) => {
+    setState(prev=>({...prev,pagination:{...state.pagination,page:selected+1}}))
+  }
+
+  const changeCategory=(category)=>{
+    // console.log(category);
+    setState(prev=>({...prev,pagination:{...prev.pagination,category:category}}))
+  }
+
+  const sortProduct=(sort)=>{
+    if(sort==="price"){
+      setState(prev=>({...prev,pagination:{...prev.pagination,sort:"price",by:"desc"}}))
+    }else if(sort==="priceAsc"){
+      setState(prev=>({...prev,pagination:{...prev.pagination,sort:"price",by:"asc"}}))
+    }else{
+      setState(prev=>({...prev,pagination:{...prev.pagination,sort:"",by:""}}))
+    }
+  }
 
   return (
     <div>
       <Header />
-      {/* <div className="banner">
-        <div id="fwslider">
-          <div className="slider_container">
-            <div className="slide">
-              <img src="images/slider1.jpg" className="img-responsive" alt="" />
-              <div className="slide_content">
-                <div className="slide_content_wrap">
-                  <h1 className="title">
-                    Run Over
-                    <br />
-                    Everything
-                  </h1>
-                  <div className="button">
-                    <a href="#">See Details</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="slide">
-              <img src="images/slider2.jpg" className="img-responsive" alt="" />
-              <div className="slide_content">
-                <div className="slide_content_wrap">
-                  <h1 className="title">
-                    Run Over
-                    <br />
-                    Everything
-                  </h1>
-                  <div className="button">
-                    <a href="#">See Details</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="timers" />
-          <div className="slidePrev">
-            <span />
-          </div>
-          <div className="slideNext">
-            <span />
-          </div>
-        </div>
-      </div> */}
       <div className="main">
         <div className="content-top">
           <h2>snowboards</h2>
@@ -111,6 +156,56 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      <Container sx={{mt:"20px"}}>
+        <Stack
+          direction="row"
+          flexWrap="wrap-reverse"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: 5 }}
+        > 
+          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
+            <ProductFilterSidebar
+              formik={formik}
+              isOpenFilter={openFilter}
+              onResetFilter={handleResetFilter}
+              onOpenFilter={handleOpenFilter}
+              onCloseFilter={handleCloseFilter}
+              changeCategory={changeCategory}
+            />
+            <ProductSort sortProduct={sortProduct}/>
+          </Stack>
+          <Paper
+            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 300,border:"1px solid #ddd" }}
+          >
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="Search"
+              onChange={e=>setState(prev=>({...prev,search:e.target.value}))}
+            />
+            <IconButton  sx={{ p: '10px' }} aria-label="search">
+              <SearchIcon onClick={()=>setState(prev=>({...prev,pagination:{...prev.pagination,search:state.search}}))}/>
+            </IconButton>
+          </Paper>
+        </Stack>
+
+        <ProductListUser products={state.products}/>
+        <ProductCartWidget />
+      </Container>
+        {state.products.length>0? <ReactPaginate
+              previousLabel="Prev"
+              nextLabel="Next"
+              pageCount={state.totalPage}
+              onPageChange={changePage}
+              containerClassName='paginationBtn'
+              previousClassName='previousBtn'
+              nextLinkClassName='nextBtn'
+              disabledClassName='paginationDisable'
+              activeClassName='paginationActive'
+            />: ""}
+
+
       <div className="features">
         <div className="container">
           <h3 className="m_3">Features</h3>
@@ -189,6 +284,8 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+
       <div className="footer">
         <div className="container">
           <div className="row">
@@ -243,6 +340,7 @@ export default function HomePage() {
                 </li>
               </ul>
             </div>
+
             <div className="col-md-3">
               <ul className="footer_box">
                 <h4>Newsletter</h4>

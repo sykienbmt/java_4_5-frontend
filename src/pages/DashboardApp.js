@@ -1,5 +1,7 @@
 // material
 import { Box, Grid, Container, Typography } from '@mui/material';
+import { useEffect } from 'react';
+import { orderController } from 'src/controllers/OrderController';
 import { getCookie } from 'src/helper/Cookies';
 // components
 import Page from '../components/Page';
@@ -21,6 +23,12 @@ import {
 // ----------------------------------------------------------------------
 
 export default function DashboardApp() {
+
+  useEffect(()=>{
+    orderController.getStatisticData().then(res=>{
+      console.log(res);
+    })
+  },[])
   return (
     <Page title="Dashboard | Minimal-UI">
       <Container maxWidth="xl">

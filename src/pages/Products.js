@@ -11,6 +11,7 @@ import {
   DialogContentText,
   DialogTitle,
   FormControl,
+  Input,
   InputLabel,
   MenuItem,
   Modal,
@@ -34,6 +35,10 @@ import { productController } from 'src/controllers/ProductController';
 import Iconify from 'src/components/Iconify';
 import { categoryController } from 'src/controllers/CategoryController';
 import { UserContext } from 'src/contexts/UserContext';
+import { ref, uploadBytes, getDownloadURL, listAll, list } from 'firebase/storage';
+
+import { v4 } from 'uuid';
+import { storage } from 'src/utils/firebase';
 
 // ----------------------------------------------------------------------
 
@@ -44,10 +49,10 @@ export default function EcommerceShop() {
     categories: [],
     idDelete: '',
     err: '',
-    errImage:"",
-    errPrice:"",
-    errName:"",
-    errCategory:"",
+    errImage: '',
+    errPrice: '',
+    errName: '',
+    errCategory: '',
     product: {
       id: '',
       name: '',
@@ -98,50 +103,59 @@ export default function EcommerceShop() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    setState(prev=>({...prev,errCategory:"",errImage:"",errName:"",errPrice:"",product: {
-      id: '',
-      name: '',
-      category: 1,
-      description: '',
-      price: 0,
-      image: ''
-    }}))
-    
+    setState((prev) => ({
+      ...prev,
+      errCategory: '',
+      errImage: '',
+      errName: '',
+      errPrice: '',
+      product: {
+        id: '',
+        name: '',
+        category: 1,
+        description: '',
+        price: 0,
+        image: ''
+      }
+    }));
   };
 
   const handleChange = (event) => {
     setState((prev) => ({ ...prev, product: { ...prev.product, category: event.target.value } }));
   };
 
-  const { setMess } = useContext(UserContext);
+  const { setMess,setErr } = useContext(UserContext);
 
   const addProduct = (e) => {
     let isValid = false;
     e.preventDefault();
-    if(state.product.image == ''){
-      setState(prev=>({...prev,errImage:"Image is Required"}))
-      isValid=true
+    if (state.product.image == '') {
+      setState((prev) => ({ ...prev, errImage: 'Image is Required' }));
+      isValid = true;
     }
-    if(state.product.name == ''){
-      setState(prev=>({...prev,errName:"Name is Required"}))
-      isValid=true
+    if (state.product.name == '') {
+      setState((prev) => ({ ...prev, errName: 'Name is Required' }));
+      isValid = true;
     }
-    if(state.product.price <0 || state.product.price==0){
-      setState(prev=>({...prev,errPrice:"Price must be >0"}))
-      isValid=true
+    if (state.product.price < 0 || state.product.price == 0) {
+      setState((prev) => ({ ...prev, errPrice: 'Price must be >0' }));
+      isValid = true;
     }
 
-    if(!isValid){
+    if (!isValid) {
       let product = { ...state.product };
       product.id = 0;
       product.deleteAt = null;
       productController.add(product).then((res) => {
-        setState((prev) => ({ ...prev, products: res, err: '' }));
+        if(res==403){
+          setErr('Permisson Denied');
+        }else{
+          setState((prev) => ({ ...prev, products: res, err: '' }));
+          setMess('Add Done');
+        }
       });
-      setState(prev=>({...prev,errCategory:"",errImage:"",errName:"",errPrice:""}))
-      setMess('Add Done');
+      setState((prev) => ({ ...prev, errCategory: '', errImage: '', errName: '', errPrice: '' }));
     }
-
   };
 
   const editProduct = (product) => {
@@ -162,10 +176,15 @@ export default function EcommerceShop() {
     let productEdit = state.product;
     productEdit.deleteAt = null;
     productController.edit(productEdit).then((res) => {
-      setState((prev) => ({ ...prev, products: res }));
+      if(res==403){
+        setErr('Permisson Denied');
+      }else{
+
+        setState((prev) => ({ ...prev, products: res }));
+        setMess('Edit Done');
+      }
     });
     handleClose();
-    setMess('Edit Done');
   };
 
   const [open1, setOpen1] = React.useState(false);
@@ -181,15 +200,37 @@ export default function EcommerceShop() {
   const onClickDelete1 = () => {
     handleClose1();
     productController.delete(state.idDelete).then((res) => {
-      setState((prev) => ({ ...prev, products: res }));
+      if(res==403){
+        setErr('Permisson Denied');
+      }else{
+
+        setState((prev) => ({ ...prev, products: res }));
+        setMess('Delete Done');
+      }
     });
-    setMess('Delete Done');
   };
 
-  const onSubmit1=(e)=>{
+  const onSubmit1 = (e) => {
     e.preventDefault();
     console.log(123);
-  }
+  };
+
+  const [imageUpload, setImageUpload] = useState(null);
+
+  const uploadFile = () => {
+    if (imageUpload == null) return;
+    const imageRef = ref(storage, `images/${imageUpload.name + v4()}`);
+    uploadBytes(imageRef, imageUpload).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        setState((prev) => ({
+          ...prev,
+          product: { ...prev.product, image: url}
+        }))
+        setMess('Upload Image done');
+      });
+    });
+  };
+
 
   return (
     <Page title="Dashboard: Products | Minimal-UI">
@@ -264,7 +305,9 @@ export default function EcommerceShop() {
                 }))
               }
             />
-            <Typography sx={{color:"red",fontSize:"14px",textAlign:"center"}}>{state.errName}</Typography>
+            <Typography sx={{ color: 'red', fontSize: '14px', textAlign: 'center' }}>
+              {state.errName}
+            </Typography>
 
             <TextField
               fullWidth
@@ -280,7 +323,9 @@ export default function EcommerceShop() {
                 }))
               }
             />
-            <Typography sx={{color:"red",fontSize:"14px",textAlign:"center"}}>{state.errPrice}</Typography>
+            <Typography sx={{ color: 'red', fontSize: '14px', textAlign: 'center' }}>
+              {state.errPrice}
+            </Typography>
 
             <FormControl fullWidth sx={{ mt: '10px', mb: '4px' }}>
               <InputLabel id="demo-simple-select-label">Category</InputLabel>
@@ -302,21 +347,58 @@ export default function EcommerceShop() {
               </Select>
             </FormControl>
 
-            <TextField
-              fullWidth
-              type="text"
-              label="Image"
-              // required
-              defaultValue={state.product.image}
-              sx={{ marginTop: '10px' }}
-              onChange={(e) =>
-                setState((prev) => ({
-                  ...prev,
-                  product: { ...prev.product, image: e.target.value }
-                }))
-              }
-            />
-            <Typography sx={{color:"red",fontSize:"14px",textAlign:"center"}}>{state.errImage}</Typography>
+            <Stack flexDirection={'row'}>
+              <Stack flex={2}>
+                <Stack
+                  flexDirection={'row'}
+                  alignItems="center"
+                  justifyContent={'space-between'}
+                  spacing={1}
+                >
+                  <TextField
+                    fullWidth
+                    small
+                    type="text"
+                    // required
+                    value={state.product.image}
+                    sx={{ marginTop: '10px' }}
+                    disabled
+                  />
+                  <Button variant="outlined" component="label">
+                    Choose
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(event) => {
+                        setImageUpload(event.target.files[0]);
+                      }}
+                    />
+                  </Button>
+                </Stack>
+                <Typography sx={{ color: 'red', fontSize: '14px', textAlign: 'center' }}>
+                  {state.errImage}
+                </Typography>
+                <Button sx={{ mt: 2 }} onClick={uploadFile}>Upload</Button>
+              </Stack>
+              <Box
+                flex={1}
+                sx={{
+                  p: 1
+                }}
+              >
+                <Box
+                  sx={{ border: 1, borderWidth: 1, p: 1, display: 'flex', alightItem: 'center' }}
+                >
+                  {state.product.image !== '' ? (
+                    <img src={state.product.image} alt="" />
+                  ) : (
+                    <Box sx={{ height: '100%' }}>NoImg Choosen</Box>
+                  )}
+                </Box>
+              </Box>
+            </Stack>
+
             <TextField
               fullWidth
               type="text"

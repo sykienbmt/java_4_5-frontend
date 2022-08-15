@@ -13,19 +13,31 @@ class ProductController{
     async add(product){
         return authAxios.post(backendUrl+'products',product).then(res=>{
             return res.data
-        })
+        }).catch(function (error) {
+            if (error.response) {
+              return error.response.status;
+            }
+          });
     }
 
     async edit(product){
         return authAxios.put(backendUrl+'products',product).then(res=>{
             return res.data
-        })
+        }).catch(function (error) {
+            if (error.response) {
+              return error.response.status;
+            }
+          });
     }
 
     async delete(id){
         return authAxios.delete(backendUrl+`products/${id}`).then(res=>{
             return res.data
-        })
+        }).catch(function (error) {
+            if (error.response) {
+              return error.response.status;
+            }
+          });
     }
 
     async getProduct(id){

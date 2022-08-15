@@ -50,11 +50,15 @@ export default function LoginForm({ setIsForgot }) {
           const value = parseJwt(localStorage.getItem('accessToken'));
           userController.getMe(value.sub).then((res) => {
             userContext.setUser(res);
+
+
             if (res.role === 'admin') {
               navigate('/dashboard/app');
             } else {
               navigate('/home');
             }
+
+
           });
         }
       });

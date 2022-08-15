@@ -194,9 +194,13 @@ export default function Category() {
         deleteAt:null
       }
       categoryController.create(category).then(res=>{
-        setState(prev=>({...prev,listCategory:res,category:{...prev.category,nameCategory:"",description:"",errLabel:""}}))
+        if(res==403){
+          toast.error("Permission Denied", {  position: 'bottom-right', autoClose: 1500 })
+        }else{
+          setState(prev=>({...prev,listCategory:res,category:{...prev.category,nameCategory:"",description:"",errLabel:""}}))
+          toast.success("Create Done", {  position: 'bottom-right', autoClose: 3000 })
+        }
       })
-      toast.success("Create Done", {  position: 'bottom-right', autoClose: 3000 })
       handleClose()
     }
   }
@@ -206,13 +210,18 @@ export default function Category() {
       setState(prev=>({...prev,errLabel:"Pls Refill all fields"}))
     }else{
       categoryController.edit(state.category).then(res=>{
-        setState(prev=>({...prev,errLabel:"",listCategory:res,category:{
-          id:"",
-          nameCategory:"",
-          description:""
-        }}))
+        if(res==403){
+          toast.error("Permission Denied", {  position: 'bottom-right', autoClose: 1500 })
+        }else{
+
+          setState(prev=>({...prev,errLabel:"",listCategory:res,category:{
+            id:"",
+            nameCategory:"",
+            description:""
+          }}))
+          toast.success("Edit Done", {  position: 'bottom-right', autoClose: 3000 })
+        }
       })
-      toast.success("Edit Done", {  position: 'bottom-right', autoClose: 3000 })
       handleClose()
     }
   }
@@ -224,9 +233,13 @@ export default function Category() {
 
   const deleteCategory=(id)=>{
     categoryController.delete(id).then(res=>{
-      setState(prev=>({...prev,listCategory:res}))
+      if(res==403){
+        toast.error("Permission Denied", {  position: 'bottom-right', autoClose: 1500 })
+      }else{
+        setState(prev=>({...prev,listCategory:res}))
+        toast.success("Delete Done", {  position: 'bottom-right', autoClose: 3000 })
+      }
     })
-    toast.success("Delete Done", {  position: 'bottom-right', autoClose: 3000 })
   }
 
 

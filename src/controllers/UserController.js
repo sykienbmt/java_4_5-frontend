@@ -62,14 +62,22 @@ class UserController{
     async edit(user){
         return authAxios.put(backendUrl+'users',user).then(res=>{
             return res.data
-        })
+        }).catch(function (error) {
+            if (error.response) {
+              return error.response.status;
+            }
+          });
     }
 
     async delete(idUser){
         console.log(idUser);
         return authAxios.delete(backendUrl+`users/${idUser}`).then(res=>{
             return res.data
-        })
+        }).catch(function (error) {
+            if (error.response) {
+              return error.response.status;
+            }
+          });
     }
 
     async createCode(email){

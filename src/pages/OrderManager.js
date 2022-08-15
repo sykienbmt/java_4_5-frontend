@@ -43,6 +43,8 @@ import USERLIST from '../_mocks_/user';
 import { categoryController } from 'src/controllers/CategoryController';
 import SearchIcon from '@mui/icons-material/Search';
 import { orderController } from 'src/controllers/OrderController';
+import { useContext } from 'react';
+import { UserContext } from 'src/contexts/UserContext';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -133,6 +135,8 @@ export default function OrderManager() {
     setOrderBy(property);
   };
 
+  const {setErr} = useContext(UserContext)
+
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelecteds = USERLIST.map((n) => n.name);
@@ -216,8 +220,12 @@ export default function OrderManager() {
       status: statusList[index].status
     };
     orderController.updateOrderStatus(orderStatus).then((res) => {
-      if (res != false) {
-        setState((prev) => ({ ...prev, listOrder: res }));
+      if(res==403){
+        setErr('Permisson Denied');
+      }else{
+        if (res != false) {
+          setState((prev) => ({ ...prev, listOrder: res }));
+        }
       }
     });
     // setState((prev) => ({ ...prev, Sta: { ...prev.product, category: event.target.value } }));

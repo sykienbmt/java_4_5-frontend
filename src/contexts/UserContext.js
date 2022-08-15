@@ -10,7 +10,8 @@ export const UserContext = createContext();
 export const UserContextProvider =(props)=>{
     const [state,setState]=useState({
         isLogin:false,
-        userInfo:""
+        userInfo:"",
+        wishList:""
     })
     const navigate = useNavigate();
 
@@ -21,11 +22,12 @@ export const UserContextProvider =(props)=>{
             console.log(value.sub);
             userController.getMe(value.sub).then(res=>{
                 setState({...state,userInfo:res})
-                // if (res.role === 'admin') {
-                //     navigate('/dashboard/app');
-                //   } else {
-                //     navigate('/home');
-                //   }
+
+                if (res.role === 'admin') {
+                    navigate('/dashboard/app');
+                  } else {
+                    navigate('/home');
+                  }
             })
         }else{
             navigate('/login', { replace: true });

@@ -48,6 +48,28 @@ export default function Header() {
                   <li>
                     <Link to="/profile/99">Your Profile</Link>
                   </li>
+                  <li style={{position:"relative"}}>
+                    <Link to="/wishList">Your Wishlist</Link>
+                    <p
+                    style={{
+                      position: 'absolute',
+                      width: '20px',
+                      height: '20px',
+                      lineHeight: '20px',
+                      color: 'white',
+                      background: 'red',
+                      borderRadius: '50%',
+                      textAlign: 'center',
+                      fontWeight: '600',
+                      top: '-5px',
+                      right: '0',
+                      zIndex: '9',
+                      fontSize: '12px'
+                    }}
+                  >
+                    {0}
+                  </p>
+                  </li>
                   <div className="clear" />
                 </ul>
               </div>
